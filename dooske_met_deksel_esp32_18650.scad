@@ -1,9 +1,9 @@
 // V 1.2 Correction / hint from molotok3D, some minor fixes
 // V 1.1- added opening helper and an optional separating wall
 $fn=300;
-wi=100;	// inner width, length & heigth
+wi=110;	// inner width, length & heigth
 li=35;
-h=22;
+h=30;
 th=2;	// wall thickness
 r=3;	// radius of rounded corners
 opening_help=true;	// make a gap to ease opening of the cover, f.ex.
@@ -135,13 +135,30 @@ module esp32_box(){
 
 
 
- difference(){
-  translate([wi/2 + th, li/2 + th, 0])  box();
-    translate([0, 5, base])
+difference(){
+  translate([wi/2 + th, li/2 + th, th])  box();
+    translate([0, 3, base])
     usb_cutout();
- }
- translate([wall, 11, 0])
+}
+translate([wall, 9, 0])
  esp32_box();
+translate([30, 7, 0])
+batt_box();    
 
-    
-    
+ 
+module batt_box(){
+ translate([0,25,0])
+ rotate([0,0,-90])
+  difference(){
+   translate([0, 0, base])
+   cube([25, 82, 5]);
+   
+   translate([2, 2, base])
+   hull()
+   import("18650_holder_s_R2.stl");
+  }    
+}
+translate([wi/2 + th, li/2 + th, 0]) 
+
+translate([0,li+3+2*th,th])
+	cover();
