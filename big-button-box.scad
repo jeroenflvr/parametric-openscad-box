@@ -9,8 +9,8 @@ use <smooth-prim/smooth_prim.scad>
 
 
 box();
-//translate([0,-h-2*wall-8,0])
-//lid();
+translate([0,-h-2*wall-8,0])
+lid();
 
 
 
@@ -128,9 +128,10 @@ module lid() {
         counter_sunk_holes(bolt_hole_r, lid_height,
                            "circle", bolt_head_r, bolt_head_height);
         }
-    translate([wall + w/2, wall + h/2,0])
-    cylinder(40, 93.5/2, 93.5/2);}
+     translate([wall + w/2, wall + h/2,0])
+     cylinder(40, 93.5/2, 93.5/2);
     }
+}
 
 
 module bolt_posts(radius, height)

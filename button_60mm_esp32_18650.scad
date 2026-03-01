@@ -1,9 +1,9 @@
 // V 1.2 Correction / hint from molotok3D, some minor fixes
 // V 1.1- added opening helper and an optional separating wall
 $fn=300;
-wi=50;	// inner width, length & heigth
-li=35;
-h=12;
+wi=82;	// inner width, length & heigth
+li=82;
+h=60;
 th=2;	// wall thickness
 r=3;	// radius of rounded corners
 opening_help=true;	// make a gap to ease opening of the cover, f.ex.
@@ -15,8 +15,22 @@ ri=(r>th)?r-th:e;	// needed for the cover - needs to be larger than 0 for proper
 l=li-2*r;
 w=wi-2*r;
 
+
+// usb
+wall = th;
+base = th;
+usb_width = 9;
+usb_height = 3.3;
+
+esp32_length = 21;
+esp32_width = 17.5;
+esp32_height = 3.5;
+esp32_standoff = 5;   
+clearance = 0.2;
+esp32_x = wall + clearance + esp32_length/2;
+
 module box(){
-	d]fference(){
+	difference(){
 		translate([0,0,-th])hull(){
 			for (i=[[-w/2,-l/2],[-w/2,l/2],[w/2,-l/2],[w/2,l/2]]){
 				translate(i)cylinder(r=r+th,h=h+th,$fn=8*r);
@@ -74,6 +88,78 @@ module cover(){
 
 }
 
-box();
-translate([0,li+3+2*th,0])
-	cover();
+module usb_cutout() {
+    // Snug oval USB-C cutout
+    // TODO: fix measurements
+    translate([0 , 8 , esp32_standoff + base]) rotate([0, 0, 90]) translate([usb_height/2 , 0, usb_height/2])hull() {
+        translate([0, 0, 0]) 
+            rotate([90, 0, 0]) 
+            cylinder(r=usb_height/2, h=wall + 2, center=false);
+        translate([usb_width, 0, 0]) 
+            rotate([90, 0, 0]) 
+            cylinder(r=usb_height/2, h=wall + 2, center=false);
+    }
+}
+
+
+module esp32_box(){
+    post_r = 1.5;
+    
+
+    translate([0,0,base]){
+     difference(){
+       //cube([]);
+       
+       cube([esp32_length, esp32_width+wall, 10]);
+       translate([-1, wall/2 - clearance, -1 ])
+       #cube([esp32_length+2, esp32_width + 2*clearance, 12]);
+     }
+     
+     
+     for (posx = [1:2]) {
+       for (posy = [1:2]){
+        echo("posx = ", posx, "posy = ", posy);
+         translate([wall/2 + (posx % 2) * (esp32_length - 4), wall + (posy % 2) * (esp32_width - wall) , 0])
+             cylinder(r=post_r, h=esp32_standoff+1);
+      }
+     }
+    }
+    translate([esp32_length, 0, base])
+    difference(){
+      cube([2, esp32_width+wall, 10]);
+      translate([0, 4, 0 ])
+      cube([2, esp32_width -4, 10]);
+    }
+}
+
+move_y = 0;
+
+
+difference(){
+  translate([wi/2 + th, li/2 + th, th])  box();
+    translate([0, move_y, base])
+    usb_cutout();
+}
+translate([wall, move_y + 4.5, 0])
+ esp32_box();
+translate([th, 60, 0])
+batt_box();    
+
+ 
+module batt_box(){
+ translate([0,25,0])
+ rotate([0,0,-90])
+  difference(){
+   translate([0, 0, base])
+   cube([25, 82, 5]);
+   
+   translate([2, 2, base])
+   hull()
+   import("18650_holder_s_R2.stl");
+  }    
+}
+
+
+//translate([wi/2 + th, li/2 + th, 0]) 
+//translate([0,li+3+2*th,th])
+//	cover();
